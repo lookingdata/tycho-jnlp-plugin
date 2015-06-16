@@ -29,347 +29,366 @@ import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
 
 /**
- * Signs bundle and feature jar files assembled inside target/site folder using jarsigner. This mojo signs all jars,
- * regardless if they were built locally or came from third party artifact repository. This is necessary for Java
- * Webstart, which requires use of the same signature for all jars referenced from JNLP file. This mojo honours most of
- * properties used by maven-jarsigner-plugin (${jarsigner.keystore}, ${jarsigner.storepass} and so on).
+ * Signs bundle and feature jar files assembled inside target/site folder using
+ * jarsigner. This mojo signs all jars, regardless if they were built locally or
+ * came from third party artifact repository. This is necessary for Java
+ * Webstart, which requires use of the same signature for all jars referenced
+ * from JNLP file. This mojo honours most of properties used by
+ * maven-jarsigner-plugin (${jarsigner.keystore}, ${jarsigner.storepass} and so
+ * on).
  * 
  * @see http://java.sun.com/javase/6/docs/technotes/tools/solaris/jarsigner.html
  * @phase package
  * @goal sign-jars
  */
-public class JarsignerMojo
-    extends AbstractJnlpMojo
-{
+public class JarsignerMojo extends AbstractJnlpMojo {
 
-    private static final String FEATURES_DIR = "features/";
-    private static final String PLUGINS_DIR = "plugins/";
+	private static final String FEATURES_DIR = "features/";
+	private static final String PLUGINS_DIR = "plugins/";
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.keystore}"
-     */
-    private String keystore;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.keystore}"
+	 */
+	private String keystore;
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.storepass}"
-     */
-    private String storepass;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.storepass}"
+	 */
+	private String storepass;
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.keypass}"
-     */
-    private String keypass;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.keypass}"
+	 */
+	private String keypass;
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.sigfile}"
-     */
-    private String sigfile;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.sigfile}"
+	 */
+	private String sigfile;
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.storetype}"
-     */
-    private String storetype;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.storetype}"
+	 */
+	private String storetype;
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.providerName}"
-     */
-    private String providerName;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.providerName}"
+	 */
+	private String providerName;
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.providerClass}"
-     */
-    private String providerClass;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.providerClass}"
+	 */
+	private String providerClass;
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.providerArg}"
-     */
-    private String providerArg;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.providerArg}"
+	 */
+	private String providerArg;
 
-    /**
-     * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
-     * 
-     * @parameter expression="${jarsigner.alias}"
-     * @required
-     */
-    private String alias;
+	/**
+	 * See <a href=
+	 * "http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options"
+	 * >options</a>.
+	 * 
+	 * @parameter expression="${jarsigner.alias}"
+	 * @required
+	 */
+	private String alias;
 
-    /**
-     * Set to {@code true} to disable the plugin.
-     * 
-     * @parameter expression="${jarsigner.skip}" default-value="true"
-     */
-    private boolean skip;
+	/**
+	 * Set to {@code true} to disable the plugin.
+	 * 
+	 * @parameter expression="${jarsigner.skip}" default-value="true"
+	 */
+	private boolean skip;
+	/**
+	 * Set to {@code true} to unsigner the jars.
+	 * 
+	 * @parameter expression="${jarsigner.unsignerJars}" default-value="false"
+	 */
+	private boolean unsignerJars;
+	
+	/**
+	 * Set to {@code true} to delete unsigner bak jars.
+	 * 
+	 * @parameter expression="${jarsigner.deleteBakUnsignerJars}" default-value="true"
+	 */
+	private boolean deleteBakUnsignerJars;
 
-    /**
-     * The path to the jarsigner we are going to use.
-     */
-    private String executable;
+	/**
+	 * The path to the jarsigner we are going to use.
+	 */
+	private String executable;
 
-    public void execute()
-        throws MojoExecutionException, MojoFailureException
-    {
-        if ( !this.skip )
-        {
-            this.executable = getExecutable();
+	final Unsigner unsigner = new Unsigner();
 
-            final ArrayList<Exception> exceptions = new ArrayList<Exception>();
+	public void execute() throws MojoExecutionException, MojoFailureException {
+		if (!this.skip) {
+			this.executable = getExecutable();
 
-            getDependencyWalker().walk( new ArtifactDependencyVisitor()
-            {
-                @Override
-                public boolean visitFeature( FeatureDescription feature )
-                {
-                    String id = feature.getKey().getId();
-                    String version = getVersion( feature );
+			final ArrayList<Exception> exceptions = new ArrayList<Exception>();
 
-                    File archive = new File( target, FEATURES_DIR + id + "_" + version + ".jar" );
+			getDependencyWalker().walk(new ArtifactDependencyVisitor() {
+				@Override
+				public boolean visitFeature(FeatureDescription feature) {
+					String id = feature.getKey().getId();
+					String version = getVersion(feature);
 
-                    if ( archive.isFile() && archive.canWrite() )
-                    {
-                        try
-                        {
-                            signFile( archive );
-                        }
-                        catch ( MojoExecutionException e )
-                        {
-                            getLog().warn( "Could not sign jar", e );
-                            exceptions.add( e );
-                        }
-                    }
+					File archive = new File(target, FEATURES_DIR + id + "_"
+							+ version + ".jar");
 
-                    return true; // keep visiting
-                }
+					if (archive.isFile() && archive.canWrite()) {
+						try {
+							signFile(archive);
+						} catch (MojoExecutionException e) {
+							getLog().warn("Could not sign jar", e);
+							exceptions.add(e);
+						}
+					}
 
-                @Override
-                public void visitPlugin( PluginDescription plugin )
-                {
-                    String id = plugin.getKey().getId();
-                    String version = getVersion( plugin );
+					return true; // keep visiting
+				}
 
-                    File archive = new File( target, PLUGINS_DIR + id + "_" + version + ".jar" );
+				@Override
+				public void visitPlugin(PluginDescription plugin) {
+					String id = plugin.getKey().getId();
+					String version = getVersion(plugin);
 
-                    if ( archive.isFile() && archive.canWrite() )
-                    {
-                        try
-                        {
-                            signFile( archive );
-                        }
-                        catch ( MojoExecutionException e )
-                        {
-                            getLog().warn( "Could not sign jar", e );
-                            exceptions.add( e );
-                        }
-                    }
-                }
-            } );
+					File archive = new File(target, PLUGINS_DIR + id + "_"
+							+ version + ".jar");
 
-            if ( !exceptions.isEmpty() )
-            {
-                throw new MojoExecutionException( "Could not sign some jar files" );
-            }
-        }
-    }
+					if (archive.isFile() && archive.canWrite()) {
+						try {
+							signFile(archive);
+						} catch (MojoExecutionException e) {
+							getLog().warn("Could not sign jar", e);
+							exceptions.add(e);
+						}
+					}
+				}
+			});
 
-    void signFile( File archive )
-        throws MojoExecutionException
-    {
-        getLog().info( "Executing jarsigner on " + archive.getAbsolutePath() );
+			if (!exceptions.isEmpty()) {
+				throw new MojoExecutionException(
+						"Could not sign some jar files");
+			}
+		}
+	}
 
-        Commandline commandLine = new Commandline();
+	void unsignFile(File archive) {
 
-        commandLine.setExecutable( this.executable );
+		if (!this.unsignerJars) {
+			return;
+		}
+		final File src = archive;
+		if (src.exists() && !src.isDirectory()) {
+			getLog().info("Unsigning project artifact: " + src);
+			File old = unsigner.unsign(src);
+			if (this.deleteBakUnsignerJars && old.exists() && !old.delete()) {
+				throw new RuntimeException("undelete " + old);
+			}
+		}
+	}
 
-        commandLine.setWorkingDirectory( this.project.getBasedir() );
+	void signFile(File archive) throws MojoExecutionException {
 
-        commandLine = getCommandline( archive, commandLine );
+		unsignFile( archive );
+		getLog().info("Executing jarsigner on " + archive.getAbsolutePath());
 
-        getLog().debug( "Executing: " + commandLine );
+		Commandline commandLine = new Commandline();
 
-        StreamConsumer out = new StreamConsumer()
-        {
-            public void consumeLine( String line )
-            {
-                getLog().debug( line );
-            }
-        };
+		commandLine.setExecutable(this.executable);
 
-        StreamConsumer err = new StreamConsumer()
-        {
-            public void consumeLine( String line )
-            {
-                getLog().warn( line );
-            }
-        };
+		commandLine.setWorkingDirectory(this.project.getBasedir());
 
-        try
-        {
-            int rc = CommandLineUtils.executeCommandLine( commandLine, out, err );
+		commandLine = getCommandline(archive, commandLine);
 
-            if ( rc != 0 )
-            {
-                throw new MojoExecutionException( "Could not sign jar " + archive + " (return code " + rc
-                    + "), command line was " + commandLine );
-            }
-        }
-        catch ( CommandLineException e )
-        {
-            throw new MojoExecutionException( "Could not sign jar " + archive, e );
-        }
-    }
+		getLog().debug("Executing: " + commandLine);
 
-    /**
-     * @Copy&paste from org.apache.maven.plugins.jarsigner.JarsignerSignMojo
-     */
-    private Commandline getCommandline( final File archive, final Commandline commandLine )
-    {
-        if ( archive == null )
-        {
-            throw new NullPointerException( "archive" );
-        }
-        if ( commandLine == null )
-        {
-            throw new NullPointerException( "commandLine" );
-        }
+		StreamConsumer out = new StreamConsumer() {
+			public void consumeLine(String line) {
+				getLog().debug(line);
+			}
+		};
 
-        if ( !StringUtils.isEmpty( this.keystore ) )
-        {
-            commandLine.createArg().setValue( "-keystore" );
-            commandLine.createArg().setValue( this.keystore );
-        }
-        if ( !StringUtils.isEmpty( this.storepass ) )
-        {
-            commandLine.createArg().setValue( "-storepass" );
-            commandLine.createArg().setValue( this.storepass );
-        }
-        if ( !StringUtils.isEmpty( this.keypass ) )
-        {
-            commandLine.createArg().setValue( "-keypass" );
-            commandLine.createArg().setValue( this.keypass );
-        }
-        if ( !StringUtils.isEmpty( this.storetype ) )
-        {
-            commandLine.createArg().setValue( "-storetype" );
-            commandLine.createArg().setValue( this.storetype );
-        }
-        if ( !StringUtils.isEmpty( this.providerName ) )
-        {
-            commandLine.createArg().setValue( "-providerName" );
-            commandLine.createArg().setValue( this.providerName );
-        }
-        if ( !StringUtils.isEmpty( this.providerClass ) )
-        {
-            commandLine.createArg().setValue( "-providerClass" );
-            commandLine.createArg().setValue( this.providerClass );
-        }
-        if ( !StringUtils.isEmpty( this.providerArg ) )
-        {
-            commandLine.createArg().setValue( "-providerArg" );
-            commandLine.createArg().setValue( this.providerArg );
-        }
-        if ( !StringUtils.isEmpty( this.sigfile ) )
-        {
-            commandLine.createArg().setValue( "-sigfile" );
-            commandLine.createArg().setValue( this.sigfile );
-        }
+		StreamConsumer err = new StreamConsumer() {
+			public void consumeLine(String line) {
+				getLog().warn(line);
+			}
+		};
 
-        commandLine.createArg().setFile( archive );
+		try {
+			int rc = CommandLineUtils.executeCommandLine(commandLine, out, err);
 
-        if ( !StringUtils.isEmpty( this.alias ) )
-        {
-            commandLine.createArg().setValue( this.alias );
-        }
+			if (rc != 0) {
+				throw new MojoExecutionException("Could not sign jar "
+						+ archive + " (return code " + rc
+						+ "), command line was " + commandLine);
+			}
+		} catch (CommandLineException e) {
+			throw new MojoExecutionException("Could not sign jar " + archive, e);
+		}
+	}
 
-        return commandLine;
-    }
+	/**
+	 * @Copy&paste from org.apache.maven.plugins.jarsigner.JarsignerSignMojo
+	 */
+	private Commandline getCommandline(final File archive,
+			final Commandline commandLine) {
+		if (archive == null) {
+			throw new NullPointerException("archive");
+		}
+		if (commandLine == null) {
+			throw new NullPointerException("commandLine");
+		}
 
-    /**
-     * Locates the executable for the jarsigner tool.
-     * 
-     * @Copy&paste from org.apache.maven.plugins.jarsigner.AbstractJarsignerMojo
-     * @return The executable of the jarsigner tool, never <code>null<code>.
-     */
-    private String getExecutable()
-    {
-        String command = "jarsigner" + ( Os.isFamily( Os.FAMILY_WINDOWS ) ? ".exe" : "" );
+		if (!StringUtils.isEmpty(this.keystore)) {
+			commandLine.createArg().setValue("-keystore");
+			commandLine.createArg().setValue(this.keystore);
+		}
+		if (!StringUtils.isEmpty(this.storepass)) {
+			commandLine.createArg().setValue("-storepass");
+			commandLine.createArg().setValue(this.storepass);
+		}
+		if (!StringUtils.isEmpty(this.keypass)) {
+			commandLine.createArg().setValue("-keypass");
+			commandLine.createArg().setValue(this.keypass);
+		}
+		if (!StringUtils.isEmpty(this.storetype)) {
+			commandLine.createArg().setValue("-storetype");
+			commandLine.createArg().setValue(this.storetype);
+		}
+		if (!StringUtils.isEmpty(this.providerName)) {
+			commandLine.createArg().setValue("-providerName");
+			commandLine.createArg().setValue(this.providerName);
+		}
+		if (!StringUtils.isEmpty(this.providerClass)) {
+			commandLine.createArg().setValue("-providerClass");
+			commandLine.createArg().setValue(this.providerClass);
+		}
+		if (!StringUtils.isEmpty(this.providerArg)) {
+			commandLine.createArg().setValue("-providerArg");
+			commandLine.createArg().setValue(this.providerArg);
+		}
+		if (!StringUtils.isEmpty(this.sigfile)) {
+			commandLine.createArg().setValue("-sigfile");
+			commandLine.createArg().setValue(this.sigfile);
+		}
 
-        String executable =
-            findExecutable( command, System.getProperty( "java.home" ), new String[] { "../bin", "bin", "../sh" } );
+		commandLine.createArg().setFile(archive);
 
-        if ( executable == null )
-        {
-            try
-            {
-                Properties env = CommandLineUtils.getSystemEnvVars();
+		if (!StringUtils.isEmpty(this.alias)) {
+			commandLine.createArg().setValue(this.alias);
+		}
 
-                String[] variables = { "JDK_HOME", "JAVA_HOME" };
+		return commandLine;
+	}
 
-                for ( int i = 0; i < variables.length && executable == null; i++ )
-                {
-                    executable =
-                        findExecutable( command, env.getProperty( variables[i] ), new String[] { "bin", "sh" } );
-                }
-            }
-            catch ( IOException e )
-            {
-                if ( getLog().isDebugEnabled() )
-                {
-                    getLog().warn( "Failed to retrieve environment variables, cannot search for " + command, e );
-                }
-                else
-                {
-                    getLog().warn( "Failed to retrieve environment variables, cannot search for " + command );
-                }
-            }
-        }
+	/**
+	 * Locates the executable for the jarsigner tool.
+	 * 
+	 * @Copy&paste from org.apache.maven.plugins.jarsigner.AbstractJarsignerMojo
+	 * @return The executable of the jarsigner tool, never <code>null<code>.
+	 */
+	private String getExecutable() {
+		String command = "jarsigner"
+				+ (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : "");
 
-        if ( executable == null )
-        {
-            executable = command;
-        }
+		String executable = findExecutable(command,
+				System.getProperty("java.home"), new String[] { "../bin",
+						"bin", "../sh" });
 
-        return executable;
-    }
+		if (executable == null) {
+			try {
+				Properties env = CommandLineUtils.getSystemEnvVars();
 
-    /**
-     * Finds the specified command in any of the given sub directories of the specified JDK/JRE home directory.
-     * 
-     * @Copy&paste from org.apache.maven.plugins.jarsigner.AbstractJarsignerMojo
-     * @param command The command to find, must not be <code>null</code>.
-     * @param homeDir The home directory to search in, may be <code>null</code>.
-     * @param subDirs The sub directories of the home directory to search in, must not be <code>null</code>.
-     * @return The (absolute) path to the command if found, <code>null</code> otherwise.
-     */
-    private String findExecutable( String command, String homeDir, String[] subDirs )
-    {
-        if ( StringUtils.isNotEmpty( homeDir ) )
-        {
-            for ( int i = 0; i < subDirs.length; i++ )
-            {
-                File file = new File( new File( homeDir, subDirs[i] ), command );
+				String[] variables = { "JDK_HOME", "JAVA_HOME" };
 
-                if ( file.isFile() )
-                {
-                    return file.getAbsolutePath();
-                }
-            }
-        }
+				for (int i = 0; i < variables.length && executable == null; i++) {
+					executable = findExecutable(command,
+							env.getProperty(variables[i]), new String[] {
+									"bin", "sh" });
+				}
+			} catch (IOException e) {
+				if (getLog().isDebugEnabled()) {
+					getLog().warn(
+							"Failed to retrieve environment variables, cannot search for "
+									+ command, e);
+				} else {
+					getLog().warn(
+							"Failed to retrieve environment variables, cannot search for "
+									+ command);
+				}
+			}
+		}
 
-        return null;
-    }
+		if (executable == null) {
+			executable = command;
+		}
+
+		return executable;
+	}
+
+	/**
+	 * Finds the specified command in any of the given sub directories of the
+	 * specified JDK/JRE home directory.
+	 * 
+	 * @Copy&paste from org.apache.maven.plugins.jarsigner.AbstractJarsignerMojo
+	 * @param command
+	 *            The command to find, must not be <code>null</code>.
+	 * @param homeDir
+	 *            The home directory to search in, may be <code>null</code>.
+	 * @param subDirs
+	 *            The sub directories of the home directory to search in, must
+	 *            not be <code>null</code>.
+	 * @return The (absolute) path to the command if found, <code>null</code>
+	 *         otherwise.
+	 */
+	private String findExecutable(String command, String homeDir,
+			String[] subDirs) {
+		if (StringUtils.isNotEmpty(homeDir)) {
+			for (int i = 0; i < subDirs.length; i++) {
+				File file = new File(new File(homeDir, subDirs[i]), command);
+
+				if (file.isFile()) {
+					return file.getAbsolutePath();
+				}
+			}
+		}
+
+		return null;
+	}
 }
